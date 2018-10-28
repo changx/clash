@@ -51,16 +51,14 @@ func (ss *Socks5) Type() C.AdapterType {
 }
 
 func (ss *Socks5) Generator(metadata *C.Metadata) (adapter C.ProxyAdapter, err error) {
-	var c net.Conn
+	c, err := net.DialTimeout("tcp", ss.addr, tcpTimeout)
 
-	if ss.tls {
+	if err == nil && ss.tls {
 		tlsConfig := tls.Config{
 			InsecureSkipVerify: ss.sni,
-			MaxVersion: tls.VersionTLS12,
+			MaxVersion:         tls.VersionTLS12,
 		}
-		c, err = tls.Dial("tcp", ss.addr, &tlsConfig)
-	} else {
-		c, err = net.DialTimeout("tcp", ss.addr, tcpTimeout)
+		c = tls.Client(c, &tlsConfig)
 	}
 
 	if err != nil {
