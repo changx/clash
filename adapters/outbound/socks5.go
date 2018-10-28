@@ -51,20 +51,16 @@ func (ss *Socks5) Type() C.AdapterType {
 }
 
 func (ss *Socks5) Generator(metadata *C.Metadata) (adapter C.ProxyAdapter, err error) {
-	//c, err := net.Dial("tcp", ss.addr)
-
 	var c net.Conn
 
 	if ss.tls {
 		tlsConfig := tls.Config{
 			InsecureSkipVerify: ss.sni,
-			// 用 cloudflare/tls-tris build，可以 uncomment following line，启用 TLS1.3
-			//MaxVersion:         tls.VersionTLS13,
 			MaxVersion: tls.VersionTLS12,
 		}
 		c, err = tls.Dial("tcp", ss.addr, &tlsConfig)
 	} else {
-		c, err = net.Dial("tcp", ss.addr)
+		c, err = net.DialTimeout("tcp", ss.addr, tcpTimeout)
 	}
 
 	if err != nil {
