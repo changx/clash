@@ -5,11 +5,10 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	C "github.com/Dreamacro/clash/constant"
 	"io"
 	"net"
 	"strings"
-
-	C "github.com/Dreamacro/clash/constant"
 
 	"github.com/Dreamacro/go-shadowsocks2/socks"
 )
@@ -56,7 +55,6 @@ func (ss *Socks5) Generator(metadata *C.Metadata) (adapter C.ProxyAdapter, err e
 	c, err := net.DialTimeout("tcp", ss.addr, tcpTimeout)
 
 	if err == nil && ss.tls {
-
 		cc := tls.Client(c, ss.tlsConfig)
 		err = cc.Handshake()
 		c = cc
