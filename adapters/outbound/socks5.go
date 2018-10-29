@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"strings"
 
 	C "github.com/Dreamacro/clash/constant"
 
@@ -28,18 +29,19 @@ func (ss *Socks5Adapter) Conn() net.Conn {
 }
 
 type Socks5 struct {
-	addr string
-	name string
-	tls  bool
-	sni  bool
+	addr           string
+	name           string
+	tls            bool
+	skipCertVerify bool
+	tlsConfig      *tls.Config
 }
 
 type Socks5Option struct {
-	Name   string `proxy:"name"`
-	Server string `proxy:"server"`
-	Port   int    `proxy:"port"`
-	TLS    bool   `proxy:"tls"`
-	SNI    bool   `proxy:"sni"`
+	Name           string `proxy:"name"`
+	Server         string `proxy:"server"`
+	Port           int    `proxy:"port"`
+	TLS            bool   `proxy:"tls,omitempty"`
+	SkipCertVerify bool   `proxy:"skip-cert-verify,omitempty"`
 }
 
 func (ss *Socks5) Name() string {
@@ -54,11 +56,10 @@ func (ss *Socks5) Generator(metadata *C.Metadata) (adapter C.ProxyAdapter, err e
 	c, err := net.DialTimeout("tcp", ss.addr, tcpTimeout)
 
 	if err == nil && ss.tls {
-		tlsConfig := tls.Config{
-			InsecureSkipVerify: ss.sni,
-			MaxVersion:         tls.VersionTLS12,
-		}
-		c = tls.Client(c, &tlsConfig)
+
+		cc := tls.Client(c, ss.tlsConfig)
+		err = cc.Handshake()
+		c = cc
 	}
 
 	if err != nil {
@@ -103,10 +104,26 @@ func (ss *Socks5) shakeHand(metadata *C.Metadata, rw io.ReadWriter) error {
 }
 
 func NewSocks5(option Socks5Option) *Socks5 {
-	return &Socks5{
-		addr: fmt.Sprintf("%s:%d", option.Server, option.Port),
-		name: option.Name,
-		tls:  option.TLS,
-		sni:  option.SNI,
+	socks5 := &Socks5{
+		addr:           fmt.Sprintf("%s:%d", option.Server, option.Port),
+		name:           option.Name,
+		tls:            option.TLS,
+		skipCertVerify: option.SkipCertVerify,
 	}
+
+	tlsConfig := tls.Config{
+		InsecureSkipVerify: socks5.skipCertVerify,
+		ClientSessionCache: tls.NewLRUClientSessionCache(0),
+		MinVersion:         tls.VersionTLS11,
+		MaxVersion:         tls.VersionTLS12,
+	}
+
+	addr := strings.Split(option.Server, ":")
+	if len(addr) > 0 {
+		tlsConfig.ServerName = addr[0]
+	}
+
+	socks5.tlsConfig = &tlsConfig
+
+	return socks5
 }
