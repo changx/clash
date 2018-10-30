@@ -5,10 +5,10 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	C "github.com/Dreamacro/clash/constant"
 	"io"
 	"net"
-
-	C "github.com/Dreamacro/clash/constant"
+	"strings"
 
 	"github.com/Dreamacro/go-shadowsocks2/socks"
 )
@@ -32,6 +32,7 @@ type Socks5 struct {
 	name           string
 	tls            bool
 	skipCertVerify bool
+	tlsConfig      *tls.Config
 }
 
 type Socks5Option struct {
@@ -54,11 +55,9 @@ func (ss *Socks5) Generator(metadata *C.Metadata) (adapter C.ProxyAdapter, err e
 	c, err := net.DialTimeout("tcp", ss.addr, tcpTimeout)
 
 	if err == nil && ss.tls {
-		tlsConfig := tls.Config{
-			InsecureSkipVerify: ss.skipCertVerify,
-			MaxVersion:         tls.VersionTLS12,
-		}
-		c = tls.Client(c, &tlsConfig)
+		cc := tls.Client(c, ss.tlsConfig)
+		err = cc.Handshake()
+		c = cc
 	}
 
 	if err != nil {
@@ -103,10 +102,26 @@ func (ss *Socks5) shakeHand(metadata *C.Metadata, rw io.ReadWriter) error {
 }
 
 func NewSocks5(option Socks5Option) *Socks5 {
-	return &Socks5{
+	socks5 := &Socks5{
 		addr:           fmt.Sprintf("%s:%d", option.Server, option.Port),
 		name:           option.Name,
 		tls:            option.TLS,
 		skipCertVerify: option.SkipCertVerify,
 	}
+
+	tlsConfig := tls.Config{
+		InsecureSkipVerify: socks5.skipCertVerify,
+		ClientSessionCache: tls.NewLRUClientSessionCache(0),
+		MinVersion:         tls.VersionTLS11,
+		MaxVersion:         tls.VersionTLS12,
+	}
+
+	addr := strings.Split(option.Server, ":")
+	if len(addr) > 0 {
+		tlsConfig.ServerName = addr[0]
+	}
+
+	socks5.tlsConfig = &tlsConfig
+
+	return socks5
 }
