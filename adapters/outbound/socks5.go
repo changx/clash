@@ -113,7 +113,7 @@ func NewSocks5(option Socks5Option) *Socks5 {
 		InsecureSkipVerify: socks5.skipCertVerify,
 		ClientSessionCache: tls.NewLRUClientSessionCache(0),
 		MinVersion:         tls.VersionTLS11,
-		MaxVersion:         tls.VersionTLS12,
+		MaxVersion:         tls.VersionTLS13,
 	}
 
 	addr := strings.Split(option.Server, ":")
