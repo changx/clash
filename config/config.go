@@ -394,6 +394,8 @@ func (c *Config) parseRules(cfg *RawConfig) error {
 			rules = append(rules, R.NewIPCIDR(rule[1], rule[2]))
 		case "FINAL":
 			rules = append(rules, R.NewFinal(rule[2]))
+		case "POLLUTED":
+			rules = append(rules, R.NewPOLLUTED(rule[1], rule[2]))
 		}
 	}
 

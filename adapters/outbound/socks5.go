@@ -5,11 +5,9 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	C "github.com/Dreamacro/clash/constant"
 	"io"
 	"net"
-	"strings"
-
-	C "github.com/Dreamacro/clash/constant"
 
 	"github.com/Dreamacro/go-shadowsocks2/socks"
 )
@@ -121,20 +119,4 @@ func NewSocks5(option Socks5Option) *Socks5 {
 		skipCertVerify: option.SkipCertVerify,
 		tlsConfig:      tlsConfig,
 	}
-
-	tlsConfig := tls.Config{
-		InsecureSkipVerify: socks5.skipCertVerify,
-		ClientSessionCache: tls.NewLRUClientSessionCache(0),
-		MinVersion:         tls.VersionTLS11,
-		MaxVersion:         tls.VersionTLS12,
-	}
-
-	addr := strings.Split(option.Server, ":")
-	if len(addr) > 0 {
-		tlsConfig.ServerName = addr[0]
-	}
-
-	socks5.tlsConfig = &tlsConfig
-
-	return socks5
 }

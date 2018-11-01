@@ -8,10 +8,12 @@ require (
 	github.com/go-chi/render v1.0.1
 	github.com/gofrs/uuid v3.1.0+incompatible
 	github.com/gorilla/websocket v1.4.0
+	github.com/miekg/dns v1.0.14
 	github.com/oschwald/geoip2-golang v1.2.1
 	github.com/oschwald/maxminddb-golang v1.3.0 // indirect
 	github.com/sirupsen/logrus v1.1.0
 	golang.org/x/crypto v0.0.0-20181009213950-7c1a557ab941
+	golang.org/x/net v0.0.0-20181029044818-c44066c5c816 // indirect
 	gopkg.in/eapache/channels.v1 v1.1.0
 	gopkg.in/yaml.v2 v2.2.1
 )

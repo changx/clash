@@ -8,6 +8,7 @@ const (
 	GEOIP
 	IPCIDR
 	FINAL
+	POLLUTED
 )
 
 type RuleType int
@@ -26,6 +27,8 @@ func (rt RuleType) String() string {
 		return "IPCIDR"
 	case FINAL:
 		return "FINAL"
+	case POLLUTED:
+		return "POLLUTED"
 	default:
 		return "Unknow"
 	}
