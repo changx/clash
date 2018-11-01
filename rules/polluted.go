@@ -4,10 +4,10 @@ import (
 	"container/list"
 	"crypto/tls"
 	"github.com/miekg/dns"
+	log "github.com/sirupsen/logrus"
 	"strings"
 	"sync"
 	"time"
-	log "github.com/sirupsen/logrus"
 )
 import C "github.com/Dreamacro/clash/constant"
 
@@ -153,7 +153,7 @@ func (pr *Polluted) Payload() string {
 
 func NewPOLLUTED(dnsHosts string, adapter string) *Polluted {
 
-	dnsList := strings.Split(dnsHosts, ",")
+	dnsList := strings.Split(dnsHosts, ";")
 
 	tlsResolver := new(dns.Client)
 	tlsResolver.Net = "tcp4-tls"
@@ -171,8 +171,8 @@ func NewPOLLUTED(dnsHosts string, adapter string) *Polluted {
 		unsafeResolver: new(dns.Client),
 		safeResolver:   tlsResolver,
 		cache: &pollutionCache{
-			m: make(map[string]*list.Element),
-			q: list.New(),
+			m:        make(map[string]*list.Element),
+			q:        list.New(),
 			capacity: 1024,
 		},
 	}
@@ -184,7 +184,6 @@ func NewPOLLUTED(dnsHosts string, adapter string) *Polluted {
 		tlsResolver.TLSConfig.ServerName = dnsList[2]
 		polluted.safeDNS = dnsList[2]
 	}
-
 
 	if len(dnsList) < 2 {
 		polluted.localDNS = "119.29.29.29:53"
