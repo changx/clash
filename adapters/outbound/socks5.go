@@ -8,6 +8,7 @@ import (
 	C "github.com/Dreamacro/clash/constant"
 	"io"
 	"net"
+	"strconv"
 
 	"github.com/Dreamacro/go-shadowsocks2/socks"
 )
@@ -113,7 +114,7 @@ func NewSocks5(option Socks5Option) *Socks5 {
 	}
 
 	return &Socks5{
-		addr:           fmt.Sprintf("%s:%d", option.Server, option.Port),
+		addr:           net.JoinHostPort(option.Server, strconv.Itoa(option.Port)),
 		name:           option.Name,
 		tls:            option.TLS,
 		skipCertVerify: option.SkipCertVerify,
