@@ -5,10 +5,11 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	C "github.com/Dreamacro/clash/constant"
 	"io"
 	"net"
 	"strconv"
+
+	C "github.com/Dreamacro/clash/constant"
 
 	"github.com/Dreamacro/go-shadowsocks2/socks"
 )

@@ -1,17 +1,18 @@
 NAME=clash
 BINDIR=bin
 GOBUILD=CGO_ENABLED=0 go build -ldflags '-w -s'
+GOROOT=/Users/changx/Code/github/cloudflare/tls-tris/_dev/GOROOT/darwin_amd64
 
 all: linux macos win64
 
 linux:
-	GOARCH=amd64 GOOS=linux $(GOBUILD) -o $(BINDIR)/$(NAME)-$@
+	GOROOT=$(GOROOT) GOARCH=amd64 GOOS=linux $(GOBUILD) -o $(BINDIR)/$(NAME)-$@
 
 macos:
-	GOARCH=amd64 GOOS=darwin $(GOBUILD) -o $(BINDIR)/$(NAME)-$@
+	GOROOT=$(GOROOT) GOARCH=amd64 GOOS=darwin $(GOBUILD) -o $(BINDIR)/$(NAME)-$@
 
 win64:
-	GOARCH=amd64 GOOS=windows $(GOBUILD) -o $(BINDIR)/$(NAME)-$@.exe
+	GOROOT=$(GOROOT) GOARCH=amd64 GOOS=windows $(GOBUILD) -o $(BINDIR)/$(NAME)-$@.exe
 
 releases: linux macos win64
 	chmod +x $(BINDIR)/$(NAME)-*
